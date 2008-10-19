@@ -40,47 +40,21 @@
  * \brief Windowing system test.
  */
 
-#include "io.h"
-#include "hw/hw_input.h"
-#include "cfg/cfg_ser.h"
+#ifndef SEM_IO_H
+#define SEM_IO_H
 
-#include <cfg/macros.h>
+#include <cfg/compiler.h>
 
-#include <drv/timer.h>
-#include <drv/buzzer.h>
-#include <drv/ser.h>
-#include <drv/sipo.h>
+#define WHISTLE_OUT BV(7)
+#define RED_OUT BV(6)
+#define ORANGE_OUT BV(5)
+#define GREEN_OUT BV(4)
 
-int main(void)
-{
-	Serial fd_ser;
-	Serial tag_ser;
+void setout(uint8_t data);
+void resetout(uint8_t data);
 
-	/* SPI Port Initialization */
-	sipo_init();
+void whistle(uint8_t count);
+void whistle_init(void);
 
-	kdbg_init();
-	timer_init();
-	buz_init();
-	whistle_init();
-
-	IRQ_ENABLE;
-	INPUT_INIT;
-
-
-	/* Open the main communication port */
-	ser_init(&fd_ser, CONFIG_TRIFACE_PORT);
-	ser_setbaudrate(&fd_ser, CONFIG_TRIFACE_BAUDRATE);
-
-	ser_init(&tag_ser, TAG_SER_PORT);
-	ser_setbaudrate(&tag_ser, TAG_SER_BAUDRATE);
-
-	// Main loop
-	for(;;)
-	{
-	}
-
-	return 0;
-}
-
+#endif
 

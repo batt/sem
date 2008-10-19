@@ -41,46 +41,85 @@
  */
 
 #include "io.h"
-#include "hw/hw_input.h"
-#include "cfg/cfg_ser.h"
 
 #include <cfg/macros.h>
 
 #include <drv/timer.h>
 #include <drv/buzzer.h>
-#include <drv/ser.h>
 #include <drv/sipo.h>
 
-int main(void)
+static volatile uint8_t whistle_count = 0;
+static Timer whistle_timer;
+static volatile uint8_t data_buf = 0;
+
+/**
+ * I bit a 1 in \a data verranno settati sul dato
+ * correntemente in uscita.
+ * Usare questa funzione per comandare l'IO perché è
+ * thread safe.
+ */
+void setout(uint8_t data)
 {
-	Serial fd_ser;
-	Serial tag_ser;
+	ATOMIC(
+		data_buf |= data;
+		sipo_putchar(data_buf);
+	);
+}
 
-	/* SPI Port Initialization */
-	sipo_init();
-
-	kdbg_init();
-	timer_init();
-	buz_init();
-	whistle_init();
-
-	IRQ_ENABLE;
-	INPUT_INIT;
-
-
-	/* Open the main communication port */
-	ser_init(&fd_ser, CONFIG_TRIFACE_PORT);
-	ser_setbaudrate(&fd_ser, CONFIG_TRIFACE_BAUDRATE);
-
-	ser_init(&tag_ser, TAG_SER_PORT);
-	ser_setbaudrate(&tag_ser, TAG_SER_BAUDRATE);
-
-	// Main loop
-	for(;;)
-	{
-	}
-
-	return 0;
+/**
+ * I bit a 1 in \a data verranno azzerati sul dato
+ * correntemente in uscita.
+ * Usare questa funzione per comandare l'IO perché è
+ * thread safe.
+ */
+void resetout(uint8_t data)
+{
+	ATOMIC(
+		data_buf &= ~data;
+		sipo_putchar(data_buf);
+	);
 }
 
 
+#define WHISTLE_ON_TIME  ms_to_ticks(200)
+#define WHISTLE_OFF_TIME ms_to_ticks(300)
+
+
+static void whistle_softint(void)
+{
+	if (whistle_timer._delay == WHISTLE_ON_TIME)
+	{
+		resetout(WHISTLE_OUT);
+		timer_setDelay(&whistle_timer, WHISTLE_OFF_TIME);
+		timer_add(&whistle_timer);
+	}
+	else
+	{
+		if (--whistle_count == 0)
+			return;
+
+		setout(WHISTLE_OUT);
+		timer_setDelay(&whistle_timer, WHISTLE_ON_TIME);
+		timer_add(&whistle_timer);
+	}
+}
+
+void whistle(uint8_t count)
+{
+	if (!count)
+		return;
+
+	while (whistle_count)
+		/* aspetta un'eventuale fischiettamento in corso */;
+
+	whistle_count = count;
+	setout(WHISTLE_OUT);
+	timer_setDelay(&whistle_timer, WHISTLE_ON_TIME);
+	timer_add(&whistle_timer);
+}
+
+void whistle_init(void)
+{
+	resetout(WHISTLE_OUT);
+	timer_setSoftint(&whistle_timer, (Hook)whistle_softint, NULL);
+}

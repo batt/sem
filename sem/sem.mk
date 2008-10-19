@@ -21,7 +21,7 @@ sem_efuse = 0xff
 sem_lock = 0x2f
 sem_CSRC = \
 	sem/sem.c \
-	sem/hw/hw_adc.c \
+	sem/io.c \
 	bertos/drv/timer.c \
 	bertos/drv/ser.c \
 	bertos/drv/buzzer.c \
