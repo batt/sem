@@ -40,8 +40,6 @@
  * \brief Windowing system test.
  */
 
-
-#include "protocol.h"
 #include "hw/hw_input.h"
 #include "hw/hw_adc.h"
 #include "cfg/cfg_ser.h"
@@ -52,11 +50,6 @@
 #include <drv/buzzer.h>
 #include <drv/ser.h>
 #include <drv/sipo.h>
-
-#include <mware/parser.h>
-#include <net/keytag.h>
-
-
 
 static Serial fd_ser;
 static Serial tag_ser;
@@ -74,8 +67,6 @@ int main(void)
 	IRQ_ENABLE;
 	INPUT_INIT;
 
-	/* Initialize Tag serial port and data structure */
-	TagPacket pkt;
 
 	/* Open the main communication port */
 	ser_init(&fd_ser, CONFIG_TRIFACE_PORT);
@@ -84,15 +75,9 @@ int main(void)
 	ser_init(&tag_ser, TAG_SER_PORT);
 	ser_setbaudrate(&tag_ser, TAG_SER_BAUDRATE);
 
-	keytag_init(&pkt, &fd_ser.fd, &tag_ser.fd);
-
-	protocol_init(&fd_ser.fd);
-
 	// Main loop
 	for(;;)
 	{
-		protocol_run(&fd_ser.fd);
-		keytag_poll(&pkt);
 	}
 
 	return 0;

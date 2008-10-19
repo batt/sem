@@ -43,6 +43,7 @@
 #define HW_INPUT_H
 
 #include <avr/io.h>
+#include <cfg/compiler.h>
 
 /* Set pins as input and enable pull-up */
 #define INPUT_INIT_D do 					\

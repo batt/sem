@@ -49,9 +49,8 @@
  * \name Architectures
  * \{
  */
-#define ARCH_TRIFACE     BV(0)
-#define ARCH_BOOT        BV(1)
-#define ARCH_EMUL        BV(2)
+#define ARCH_SEM     BV(0)
+#define ARCH_EMUL    BV(1)
 /*\}*/
 
 #endif /* CFG_ARCH_CONFIG_H */
