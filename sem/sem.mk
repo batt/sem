@@ -22,6 +22,7 @@ sem_lock = 0x2f
 sem_CSRC = \
 	sem/sem.c \
 	sem/io.c \
+	sem/states.c \
 	bertos/drv/timer.c \
 	bertos/drv/ser.c \
 	bertos/drv/kbd.c \

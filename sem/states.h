@@ -33,58 +33,32 @@
  *
  * \version $Id: triface.c 1550 2008-08-05 15:28:24Z qwert $
  *
- * \author Marco Benelli <marco@develer.com>
- * \author Bernie Innocenti <bernie@codewiz.org>
- * \author Daniele Basile <asterix@develer.com>
+ * \author Francesco Sacchi <batt@develer.com>
  *
- * \brief Windowing system test.
+ * \brief Signal light state machine.
  */
 
-#include "io.h"
-#include "states.h"
+#ifndef SEM_STATES_H
+#define SEM_STATES_H
 
-#include "hw/hw_input.h"
-#include "cfg/cfg_ser.h"
+#include <cfg/compiler.h>
 
-#include <cfg/macros.h>
-
-#include <drv/timer.h>
-#include <drv/kbd.h>
-#include <drv/ser.h>
-#include <drv/sipo.h>
-
-int main(void)
+typedef enum LightStates
 {
-	Serial fd_ser;
-	Serial tag_ser;
+	LS_RESET,
+	LS_SHOOTINGLINE,
+	LS_SHOOTING,
+	LS_TIMEEXPIRING,
+	LS_STOPSHOOTING,
+} LightStates;
 
-	/* SPI Port Initialization */
-	IRQ_ENABLE;
-	sipo_init();
+typedef struct LightTimes
+{
+	mtime_t shooting_line;
+	mtime_t shooting;
+	mtime_t time_expiring;
+} LightTimes;
 
-	kdbg_init();
-	timer_init();
-	whistle_init();
+void NORETURN state_run(LightTimes *times);
 
-	INPUT_INIT;
-	kbd_init();
-
-	/* Open the main communication port */
-	ser_init(&fd_ser, CONFIG_TRIFACE_PORT);
-	ser_setbaudrate(&fd_ser, CONFIG_TRIFACE_BAUDRATE);
-
-	ser_init(&tag_ser, TAG_SER_PORT);
-	ser_setbaudrate(&tag_ser, TAG_SER_BAUDRATE);
-
-
-	LightTimes times;
-	times.shooting_line = 20000UL;
-	times.shooting = 90000UL;
-	times.time_expiring = 30000UL;
-
-	state_run(&times);
-
-	return 0;
-}
-
-
+#endif /*SEM_STATES_H */
