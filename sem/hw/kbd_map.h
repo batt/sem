@@ -26,66 +26,40 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  *
- * Copyright 2003, 2004, 2006, 2008 Develer S.r.l. (http://www.develer.com/)
- * Copyright 2000 Bernie Innocenti <bernie@codewiz.org>
- *
+ * Copyright 2003, 2004, 2005, 2006, 2008 Develer S.r.l. (http://www.develer.com/)
+ * Copyright 2000 Bernie Innocenti
+ * All Rights Reserved.
  * -->
  *
- * \version $Id: triface.c 1550 2008-08-05 15:28:24Z qwert $
+ * \brief Keyboard map definitions.
  *
- * \author Marco Benelli <marco@develer.com>
- * \author Bernie Innocenti <bernie@codewiz.org>
- * \author Daniele Basile <asterix@develer.com>
+ * \version $Id: kbd_map.h 1532 2008-08-04 07:21:26Z bernie $
  *
- * \brief Windowing system test.
+ * \author Francesco Sacchi <batt@develer.com>
+ * \author Stefano Fedrigo <a@develer.com>
  */
 
-#include "io.h"
-#include "hw/hw_input.h"
-#include "cfg/cfg_ser.h"
+#ifndef HW_KBD_MAP_H
+#define HW_KBD_MAP_H
 
 #include <cfg/macros.h>
 
-#include <drv/timer.h>
-#include <drv/kbd.h>
-#include <drv/ser.h>
-#include <drv/sipo.h>
 
-int main(void)
-{
-	Serial fd_ser;
-	Serial tag_ser;
+/**
+ * Type for keyboard mask.
+ */
+typedef uint16_t keymask_t;
 
-	/* SPI Port Initialization */
-	IRQ_ENABLE;
-	sipo_init();
+/**
+ * \name Keycodes.
+ */
+/*@{*/
+#define K_START    BV(0)
+#define K_STOP     BV(1)
 
-	kdbg_init();
-	timer_init();
-	whistle_init();
-
-	INPUT_INIT;
-	kbd_init();
-
-	/* Open the main communication port */
-	ser_init(&fd_ser, CONFIG_TRIFACE_PORT);
-	ser_setbaudrate(&fd_ser, CONFIG_TRIFACE_BAUDRATE);
-
-	ser_init(&tag_ser, TAG_SER_PORT);
-	ser_setbaudrate(&tag_ser, TAG_SER_BAUDRATE);
-
-	whistle(4);
-	// Main loop
-	for(;;)
-	{
-		keymask_t k = kbd_get();
-		if (k & K_START)
-			kprintf("Start!\n");
-		if (k & K_STOP)
-			kprintf("Stop!\n");
-	}
-
-	return 0;
-}
+#define K_REPEAT   BV(14) /**< This is a repeated keyevent. */
+#define K_TIMEOUT  BV(15) /**< Fake key event for timeouts. */
+/*@}*/
 
 
+#endif /* HW_KBD_MAP_H */

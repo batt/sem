@@ -41,6 +41,7 @@
  */
 
 #include "io.h"
+#include "hw/hw_buzzer.h"
 
 #include <cfg/macros.h>
 
@@ -90,6 +91,7 @@ static void whistle_softint(void)
 	if (whistle_timer._delay == WHISTLE_ON_TIME)
 	{
 		resetout(WHISTLE_OUT);
+		BUZZER_OFF;
 		timer_setDelay(&whistle_timer, WHISTLE_OFF_TIME);
 		timer_add(&whistle_timer);
 	}
@@ -99,6 +101,7 @@ static void whistle_softint(void)
 			return;
 
 		setout(WHISTLE_OUT);
+		BUZZER_ON;
 		timer_setDelay(&whistle_timer, WHISTLE_ON_TIME);
 		timer_add(&whistle_timer);
 	}
@@ -114,12 +117,14 @@ void whistle(uint8_t count)
 
 	whistle_count = count;
 	setout(WHISTLE_OUT);
+	BUZZER_ON;
 	timer_setDelay(&whistle_timer, WHISTLE_ON_TIME);
 	timer_add(&whistle_timer);
 }
 
 void whistle_init(void)
 {
+	BUZZER_HW_INIT;
 	resetout(WHISTLE_OUT);
 	timer_setSoftint(&whistle_timer, (Hook)whistle_softint, NULL);
 }

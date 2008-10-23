@@ -24,7 +24,7 @@ sem_CSRC = \
 	sem/io.c \
 	bertos/drv/timer.c \
 	bertos/drv/ser.c \
-	bertos/drv/buzzer.c \
+	bertos/drv/kbd.c \
 	bertos/cpu/avr/drv/ser_avr.c \
 	bertos/cpu/avr/drv/sipo.c \
 	bertos/mware/formatwr.c \

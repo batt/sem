@@ -26,66 +26,34 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  *
- * Copyright 2003, 2004, 2006, 2008 Develer S.r.l. (http://www.develer.com/)
- * Copyright 2000 Bernie Innocenti <bernie@codewiz.org>
- *
+ * Copyright 2008 Develer S.r.l. (http://www.develer.com/)
+ * All Rights Reserved.
  * -->
  *
- * \version $Id: triface.c 1550 2008-08-05 15:28:24Z qwert $
+ * \brief Configuration file for keyboard module.
  *
- * \author Marco Benelli <marco@develer.com>
- * \author Bernie Innocenti <bernie@codewiz.org>
+ * \version $Id: cfg_kbd.h 1793 2008-09-05 16:21:53Z batt $
+ *
  * \author Daniele Basile <asterix@develer.com>
- *
- * \brief Windowing system test.
  */
 
-#include "io.h"
-#include "hw/hw_input.h"
-#include "cfg/cfg_ser.h"
+#ifndef CFG_KBD_H
+#define CFG_KBD_H
 
-#include <cfg/macros.h>
+/// Keyboard polling method
+#define CONFIG_KBD_POLL  KBD_POLL_SOFTINT
 
-#include <drv/timer.h>
-#include <drv/kbd.h>
-#include <drv/ser.h>
-#include <drv/sipo.h>
+/// Enable keyboard event delivery to observers
+#define CONFIG_KBD_OBSERVER  0
 
-int main(void)
-{
-	Serial fd_ser;
-	Serial tag_ser;
+/// Enable key beeps
+#define CONFIG_KBD_BEEP  0
 
-	/* SPI Port Initialization */
-	IRQ_ENABLE;
-	sipo_init();
+/// Enable long pression handler for keys
+#define CONFIG_KBD_LONGPRESS  0
 
-	kdbg_init();
-	timer_init();
-	whistle_init();
+/// Enable calling poor man's scheduler to be called inside kbd_peek
+#define CONFIG_KBD_SCHED 0
 
-	INPUT_INIT;
-	kbd_init();
-
-	/* Open the main communication port */
-	ser_init(&fd_ser, CONFIG_TRIFACE_PORT);
-	ser_setbaudrate(&fd_ser, CONFIG_TRIFACE_BAUDRATE);
-
-	ser_init(&tag_ser, TAG_SER_PORT);
-	ser_setbaudrate(&tag_ser, TAG_SER_BAUDRATE);
-
-	whistle(4);
-	// Main loop
-	for(;;)
-	{
-		keymask_t k = kbd_get();
-		if (k & K_START)
-			kprintf("Start!\n");
-		if (k & K_STOP)
-			kprintf("Stop!\n");
-	}
-
-	return 0;
-}
-
+#endif /* CFG_KBD_H */
 
