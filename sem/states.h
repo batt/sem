@@ -54,9 +54,9 @@ typedef enum LightStates
 
 typedef struct LightTimes
 {
-	mtime_t shooting_line;
-	mtime_t shooting;
-	mtime_t time_expiring;
+	mtime_t shootline_time;
+	mtime_t green_time;
+	mtime_t orange_time;
 } LightTimes;
 
 void NORETURN state_run(LightTimes *times);

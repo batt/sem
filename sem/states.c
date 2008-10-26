@@ -42,17 +42,30 @@
 #include "io.h"
 
 #include <cfg/macros.h>
+#include <drv/buzzer.h>
 #include <drv/timer.h>
 #include <drv/kbd.h>
 
+/* Mettere a 1 per mandare il ciclo in automatico */
+#define SEM_TEST 0
 
 static LightStates state_reset(UNUSED_ARG(LightTimes *, times))
 {
 	TRACE;
 	resetout(GREEN_OUT | ORANGE_OUT);
 	setout(RED_OUT);
+	buz_beep(200);
 
+	#if SEM_TEST
+	static int i = 1;
+	kprintf("Ciclo %d\n", i++);
+
+	ticks_t start = timer_clock();
+	while ((!(kbd_peek() & K_START))
+	&& (timer_clock() - start < ms_to_ticks(10000)));
+	#else
 	while (!(kbd_get() & K_START));
+	#endif
 
 	return LS_SHOOTINGLINE;
 }
@@ -71,9 +84,20 @@ static LightStates state_shootingLine(LightTimes *times)
 		if (k & K_STOP)
 			return LS_RESET;
 
-		if ((k & K_START)
-			|| (timer_clock() - start >= ms_to_ticks(times->shooting_line)))
+		if (k & K_START)
 			return LS_SHOOTING;
+
+		if (!((timer_clock() - start) % ms_to_ticks(1000)))
+		{
+			if (timer_clock() - start < ms_to_ticks(times->shootline_time))
+				buz_beep(100);
+			else
+				buz_beep(500);
+		}
+		#if SEM_TEST
+		if (timer_clock() - start >= ms_to_ticks(15000))
+			return LS_SHOOTING;
+		#endif
 	}
 }
 
@@ -94,7 +118,7 @@ static LightStates state_shooting(LightTimes *times)
 		if (k & K_START)
 			return LS_SHOOTINGLINE;
 
-		if (timer_clock() - start >= ms_to_ticks(times->shooting))
+		if (timer_clock() - start >= ms_to_ticks(times->green_time))
 			return LS_TIMEEXPIRING;
 	}
 }
@@ -111,12 +135,26 @@ static LightStates state_timeExpiring(LightTimes *times)
 	{
 		keymask_t k = kbd_peek();
 
-		if ((k & K_STOP)
-			|| (timer_clock() - start >= ms_to_ticks(times->time_expiring)))
+		if ((k & K_STOP))
+			//|| (timer_clock() - start >= ms_to_ticks(times->orange_time)))
 			return LS_STOPSHOOTING;
 
 		if (k & K_START)
 			return LS_SHOOTINGLINE;
+
+		/* Fai un beep ogni secondo a partire dagli ultimi 5 secondi */
+		if ((timer_clock() - start >= ms_to_ticks(times->orange_time - 5000))
+			&& !((timer_clock() - start) % ms_to_ticks(1000)))
+		{
+			if (timer_clock() - start < ms_to_ticks(times->orange_time))
+				buz_beep(100);
+			else
+				buz_beep(500);
+		}
+		#if SEM_TEST
+		if (timer_clock() - start >= ms_to_ticks(times->orange_time))
+			return LS_STOPSHOOTING;
+		#endif
 	}
 }
 
