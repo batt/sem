@@ -48,6 +48,7 @@
 
 #include <cfg/macros.h>
 
+#include <drv/buzzer.h>
 #include <drv/timer.h>
 #include <drv/kbd.h>
 #include <drv/ser.h>
@@ -58,16 +59,14 @@ int main(void)
 	Serial fd_ser;
 	Serial tag_ser;
 
-	/* SPI Port Initialization */
-	IRQ_ENABLE;
-	sipo_init();
-
 	kdbg_init();
+	sipo_init();
 	timer_init();
-	whistle_init();
-
+	IRQ_ENABLE;
 	INPUT_INIT;
 	kbd_init();
+	buz_init();
+	whistle_init();
 
 	/* Open the main communication port */
 	ser_init(&fd_ser, CONFIG_TRIFACE_PORT);
@@ -78,11 +77,16 @@ int main(void)
 
 
 	LightTimes times;
-	times.shooting_line = 20000UL;
-	times.shooting = 90000UL;
-	times.time_expiring = 30000UL;
+	times.shootline_time  = 20000UL;
+	times.green_time  = 90000UL;
+	times.orange_time = 30000UL;
 
 	state_run(&times);
+
+	/* La macchina a stati non dovrebbe ritornare mai, in ogni caso... */
+	resetout(GREEN_OUT | ORANGE_OUT);
+	setout(RED_OUT);
+	ASSERT(0);
 
 	return 0;
 }

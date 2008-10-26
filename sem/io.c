@@ -82,8 +82,8 @@ void resetout(uint8_t data)
 }
 
 
-#define WHISTLE_ON_TIME  ms_to_ticks(200)
-#define WHISTLE_OFF_TIME ms_to_ticks(300)
+#define WHISTLE_ON_TIME  ms_to_ticks(150)
+#define WHISTLE_OFF_TIME ms_to_ticks(350)
 
 
 static void whistle_softint(void)
@@ -124,7 +124,6 @@ void whistle(uint8_t count)
 
 void whistle_init(void)
 {
-	BUZZER_HW_INIT;
 	resetout(WHISTLE_OUT);
 	timer_setSoftint(&whistle_timer, (Hook)whistle_softint, NULL);
 }
