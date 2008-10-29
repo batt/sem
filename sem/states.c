@@ -40,6 +40,7 @@
 
 #include "states.h"
 #include "io.h"
+#include "hw/hw_buzzer.h"
 
 #include <cfg/macros.h>
 #include <drv/buzzer.h>
@@ -149,7 +150,7 @@ static LightStates state_timeExpiring(LightTimes *times)
 			if (timer_clock() - start < ms_to_ticks(times->orange_time))
 				buz_beep(100);
 			else
-				buz_beep(500);
+				BUZZER_ON;
 		}
 		#if SEM_TEST
 		if (timer_clock() - start >= ms_to_ticks(times->orange_time))
