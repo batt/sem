@@ -85,7 +85,7 @@ static LightStates state_shootingLine(LightTimes *times)
 		if (k & K_STOP)
 			return LS_RESET;
 
-		if (k & K_START)
+		if ((k & K_START) ||  (timer_clock() - start >= ms_to_ticks(times->shootline_time)))
 			return LS_SHOOTING;
 
 		if (!((timer_clock() - start) % ms_to_ticks(1000)))
@@ -136,8 +136,7 @@ static LightStates state_timeExpiring(LightTimes *times)
 	{
 		keymask_t k = kbd_peek();
 
-		if ((k & K_STOP))
-			//|| (timer_clock() - start >= ms_to_ticks(times->orange_time)))
+		if ((k & K_STOP) || (timer_clock() - start >= ms_to_ticks(times->orange_time)))
 			return LS_STOPSHOOTING;
 
 		if (k & K_START)

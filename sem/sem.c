@@ -77,7 +77,7 @@ int main(void)
 
 
 	LightTimes times;
-	times.shootline_time  = 20000UL;
+	times.shootline_time  = 10000UL;
 	times.green_time  = 90000UL;
 	times.orange_time = 30000UL;
 
